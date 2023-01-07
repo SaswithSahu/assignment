@@ -162,7 +162,9 @@ app.post("/todos/", async (request, response) => {
          ${id},
          '${todo}',
          '${priority}',
-         '${status}'
+         '${status}',
+         "${category}",
+         "${dueDate}"
       );`;
     const dbResponse = await db.run(addQuery);
     response.send("Todo Successfully Added");
