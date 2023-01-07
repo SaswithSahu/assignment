@@ -148,8 +148,13 @@ app.get("/agenda/", async (request, response) => {
 
 app.post("/todos/", async (request, response) => {
   const todoDetails = request.body;
-  const { id, todo, priority, status } = todoDetails;
-  const addQuery = `
+  const { id, todo, priority, status, category, dueDate } = todoDetails;
+  const condition1 = getCond1(status);
+  const condition2 = getCond2(priority);
+  const condition3 = getCond3(category);
+  const condition4 = dateFun.isValid(new Date(dueDate));
+  if (condition1 && condition2 && condition3 && condition4) {
+    const addQuery = `
     INSERT INTO
       todo (id,todo,priority,status)
     VALUES
@@ -159,8 +164,23 @@ app.post("/todos/", async (request, response) => {
          '${priority}',
          '${status}'
       );`;
-  const dbResponse = await db.run(addQuery);
-  response.send("Todo Successfully Added");
+    const dbResponse = await db.run(addQuery);
+    response.send("Todo Successfully Added");
+  } else {
+    if (condition1 === false) {
+      response.status(400);
+      response.send("Invalid Todo Status");
+    } else if (condition2 === false) {
+      response.status(400);
+      response.send("Invalid Todo Priority");
+    } else if (condition3 === false) {
+      response.status(400);
+      response.send("Invalid Todo Category");
+    } else {
+      response.status(400);
+      response.send("Invalid Due Date");
+    }
+  }
 });
 
 app.put("/todos/:todoId/", async (request, response) => {
